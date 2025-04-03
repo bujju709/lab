@@ -62,7 +62,7 @@ def main():
     print('\n Number of Training data: ' + repr(len(trainingSet)))
     print(' Number of Test Data: ' + repr(len(testSet)))  
     
-    # Generate predictions using KNN
+   
     predictions = []  
     k = 3 
     print('\n The predictions are: ')  
@@ -75,5 +75,5 @@ def main():
     accuracy = getAccuracy(testSet, predictions)  
     print('\n The Accuracy is: ' + repr(accuracy) + '%')  
 
-# Run the KNN algorithm
+
 main()
