@@ -28,7 +28,7 @@ def graphPlot(X,ypred):
     plt.xlabel('Total bill')
     plt.ylabel('Tip')
     plt.show();
-# load data points
+
 data = pd.read_csv('tips.csv')
 bill = np.array(data.total_bill) 
 tip = np.array(data.tip)
@@ -36,6 +36,6 @@ mbill = np.mat(bill)
 mtip = np.mat(tip)
 m= np.shape(mbill)[1]
 one = np.mat(np.ones(m))
-X = np.hstack((one.T,mbill.T)) # 244 rows, 2 cols
+X = np.hstack((one.T,mbill.T)) 
 ypred = localWeightRegression(X,mtip,1.7) 
 graphPlot(X,ypred)
