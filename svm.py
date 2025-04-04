@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.datasets import make_blobs
 import matplotlib.pyplot as plt
 X, y = make_blobs(n_samples=100, centers=2, random_state=45)
-y = np.where(y == 0, -1, 1) # Convert labels to -1 and 1
+y = np.where(y == 0, -1, 1) 
 plt.scatter(X[:, 0], X[:, 1], c=y, cmap='bwr')
 plt.show()
 class SVM:
@@ -28,10 +28,10 @@ class SVM:
     def predict(self, X):
         approx = np.dot(X, self.w) - self.b
         return np.sign(approx)
-# Initialize and train the SVM
+
 svm = SVM(learning_rate=0.001, lambda_param=0.01, n_iters=1000)
 svm.fit(X, y)
-# Plot the decision boundary
+
 def plot_decision_boundary(X, y, model):
     plt.scatter(X[:, 0], X[:, 1], c=y, cmap='bwr')
     ax = plt.gca()
