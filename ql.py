@@ -15,13 +15,13 @@ class GridEnvironment:
  
     def step(self, action): 
         x, y = self.state 
-        if action == 0:  # Up 
+        if action == 0: 
             x = max(0, x - 1) 
-        elif action == 1:  # Down 
+        elif action == 1: 
             x = min(self.size - 1, x + 1) 
-        elif action == 2:  # Left 
+        elif action == 2: 
             y = max(0, y - 1) 
-        elif action == 3:  # Right 
+        elif action == 3:  
             y = min(self.size - 1, y + 1) 
  
         self.state = (x, y) 
@@ -46,7 +46,7 @@ class GridEnvironment:
         return self.size * self.size 
  
     def get_action_space(self): 
-        return 4  # Up, Down, Left, Right 
+        return 4  
  
 def q_learning(env, episodes=1000, alpha=0.1, gamma=0.9, epsilon=0.1): 
     q_table = np.zeros((env.get_state_space(), env.get_action_space())) 
@@ -90,7 +90,7 @@ def analyze_performance(q_table, env):
         steps += 1 
     env.render() 
     print(f"Steps taken to reach goal: {steps}") 
-# Setup the environment 
+
 env = GridEnvironment(size=5, goal=(4, 4)) 
 q_table = q_learning(env) 
 analyze_performance(q_table, env)
