@@ -23,20 +23,20 @@ class CaseBasedReasoning:
         labels = [case['label'] for case in nearest_cases] 
         return max(set(labels), key=labels.count) 
  
-# Sample usage 
+
 cbr = CaseBasedReasoning() 
  
-# Adding some past cases 
+
 cbr.add_case([1, 2], 'A') 
 cbr.add_case([2, 3], 'A') 
 cbr.add_case([3, 3], 'B') 
 cbr.add_case([5, 4], 'B') 
 cbr.add_case([3, 5], 'B') 
-# Query case 
+
 query = [2.5, 3] 
-# Retrieve the most similar case 
+
 similar_cases = cbr.retrieve(query, k=2) 
 print("Most Similar Cases:", similar_cases) 
-# Predict label based on nearest neighbors 
+
 prediction = cbr.predict(query, k=2) 
 print("Predicted Label:", prediction)
