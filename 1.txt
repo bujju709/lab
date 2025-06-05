@@ -1,0 +1,82 @@
+Server Side:
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <time.h>
+
+int main() {
+    int sockfd, conntfd;
+    struct sockaddr_in sa, cli;
+    socklen_t len;
+    char str[100];
+    time_t tick;
+
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) { perror("Socket failed"); exit(1); }
+    printf("Socket opened\n");
+
+    bzero(&sa, sizeof(sa));
+    sa.sin_family = AF_INET;
+    sa.sin_port = htons(5600);
+    sa.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    if (bind(sockfd, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
+        perror("Bind failed"); exit(1);
+    }
+    printf("Binded\n");
+
+    listen(sockfd, 5);
+    while (1) {
+        len = sizeof(cli);
+        conntfd = accept(sockfd, (struct sockaddr*)&cli, &len);
+        if (conntfd < 0) { perror("Accept failed"); continue; }
+        printf("Accepted\n");
+        tick = time(NULL);
+        snprintf(str, sizeof(str), "%s", ctime(&tick));
+        write(conntfd, str, strlen(str));
+        close(conntfd);
+    }
+    close(sockfd);
+    return 0;
+}
+
+Client Side
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+int main() {
+    int sockfd, n;
+    struct sockaddr_in sa;
+    char buff[100];
+
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) { perror("Socket failed"); exit(1); }
+    printf("Socket opened\n");
+
+    bzero(&sa, sizeof(sa));
+    sa.sin_family = AF_INET;
+    sa.sin_port = htons(5600);
+    sa.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+    if (connect(sockfd, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
+        perror("Connect failed"); exit(1);
+    }
+    printf("Connected\n");
+
+    n = read(sockfd, buff, sizeof(buff) - 1);
+    if (n < 0) { perror("Read error"); exit(1); }
+
+    buff[n] = '\0';
+    printf("Message: %s", buff);
+
+    close(sockfd);
+    return 0;
+}

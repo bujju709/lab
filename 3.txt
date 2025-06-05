@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
+#include <sys/socket.h>
+
+int main() {
+    int sockfd;
+    FILE *file;
+    int optval;
+    socklen_t optlen = sizeof(optval);
+
+    // Create a TCP socket
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) {
+        perror("Socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Open file to write options
+    file = fopen("socket_options.txt", "w");
+    if (file == NULL) {
+        perror("File open failed");
+        close(sockfd);
+        exit(EXIT_FAILURE);
+    }
+
+    // --- IP Layer Options ---
+    fprintf(file, "IP Layer Socket Options:\n");
+
+    if (getsockopt(sockfd, IPPROTO_IP, IP_TTL, &optval, &optlen) == 0)
+        fprintf(file, "IP_TTL: %d\n", optval);
+    else
+        perror("getsockopt IP_TTL");
+
+    if (getsockopt(sockfd, IPPROTO_IP, IP_TOS, &optval, &optlen) == 0)
+        fprintf(file, "IP_TOS: %d\n", optval);
+    else
+        perror("getsockopt IP_TOS");
+
+    // --- TCP Layer Options ---
+    fprintf(file, "\nTCP Layer Socket Options:\n");
+
+    if (getsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &optval, &optlen) == 0)
+        fprintf(file, "TCP_NODELAY: %d\n", optval);
+    else
+        perror("getsockopt TCP_NODELAY");
+
+    if (getsockopt(sockfd, IPPROTO_TCP, TCP_MAXSEG, &optval, &optlen) == 0)
+        fprintf(file, "TCP_MAXSEG: %d\n", optval);
+    else
+        perror("getsockopt TCP_MAXSEG");
+
+    fclose(file);
+    close(sockfd);
+    printf("Socket options written to socket_options.txt\n");
+
+    return 0;
+}

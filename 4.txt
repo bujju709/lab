@@ -1,0 +1,113 @@
+SEVER:
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <sys/time.h>  // For gettimeofday()
+
+int main() {
+    int sfd, cfd; char buf[1024];
+    struct sockaddr_in addr; socklen_t len = sizeof(addr);
+    struct timeval start, end;
+
+    sfd = socket(AF_INET, SOCK_STREAM, 0);
+    addr.sin_family = AF_INET; addr.sin_addr.s_addr = INADDR_ANY; addr.sin_port = htons(8080);
+    bind(sfd, (struct sockaddr *)&addr, sizeof(addr));
+    listen(sfd, 3); printf("Listening...\n");
+
+    cfd = accept(sfd, (struct sockaddr *)&addr, &len);
+
+    gettimeofday(&start, NULL); // Start time before processing
+    int n = read(cfd, buf, 1024); buf[n] = '\0';
+    printf("Client: %s\n", buf);
+    send(cfd, buf, n, 0);
+    gettimeofday(&end, NULL); // End time after sending
+
+    // Calculate processing time in microseconds
+    long seconds = end.tv_sec - start.tv_sec;
+    long microseconds = end.tv_usec - start.tv_usec;
+    double elapsed = seconds + microseconds*1e-6;
+
+    printf("Processing time: %.6f seconds\n", elapsed);
+
+    close(cfd); close(sfd);
+    return 0;
+}
+
+CLIENT:
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+int main() {
+    int sock; char buf[1024];
+    struct sockaddr_in serv;
+
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    serv.sin_family = AF_INET; serv.sin_port = htons(8080);
+    inet_pton(AF_INET, "127.0.0.1", &serv.sin_addr);
+    connect(sock, (struct sockaddr *)&serv, sizeof(serv));
+
+    printf("Enter message: ");
+    fgets(buf, sizeof(buf), stdin);
+    send(sock, buf, strlen(buf), 0);
+    int n = read(sock, buf, sizeof(buf)); buf[n] = '\0';
+    printf("Server: %s\n", buf);
+    close(sock);
+    return 0;
+}
+
+
+ JAVA PROGRAM
+SERVER:
+import java.io.*;
+import java.net.*;
+
+public class Server {
+    public static void main(String[] args) {
+        try (ServerSocket serverSocket = new ServerSocket(8080)) {
+            System.out.println("Listening on port 8080...");
+
+            Socket clientSocket = serverSocket.accept();
+            long startTime = System.nanoTime(); // Start timing
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+
+            String clientMessage = in.readLine();
+            System.out.println("Client: " + clientMessage);
+            out.println(clientMessage);
+
+            long endTime = System.nanoTime(); // End timing
+            double elapsedTime = (endTime - startTime) / 1e6; // Convert to milliseconds
+            System.out.printf("Processing time: %.3f ms\n", elapsedTime);
+
+            clientSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+CLIENT:
+import java.io.*;
+import java.net.*;
+
+public class Client {
+    public static void main(String[] args) {
+        try (Socket socket = new Socket("127.0.0.1", 8080)) {
+            BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            System.out.print("Enter message: ");
+            String message = userInput.readLine();
+            out.println(message);
+
+            String serverMessage = in.readLine();
+            System.out.println("Server: " + serverMessage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
